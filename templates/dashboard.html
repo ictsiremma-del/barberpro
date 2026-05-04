@@ -114,7 +114,7 @@
         {% for r in recent %}
         <tr>
           <td class="mono" style="font-size:11px;color:var(--text2)">
-            {{ r.recorded_at[:16].replace('T',' ') }}
+            {{ r.recorded_at.strftime('%Y-%m-%d %H:%M') if r.recorded_at else '' }}
           </td>
           <td><span class="badge badge-blue">{{ r.barber_name }}</span></td>
           <td>{{ r.service }}</td>
