@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — BarberPro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">
+      Welcome back, {{ session.name }}
+    </div>
+    <h1 class="section-title">
+      {% if period=='day' %}Today{% elif period=='week' %}This Week{% else %}This Month{% endif %}'s Overview
+    </h1>
+  </div>
+  <div class="period-tabs">
+    <a href="?period=day" class="period-tab {% if period=='day' %}active{% endif %}">Day</a>
+    <a href="?period=week" class="period-tab {% if period=='week' %}active{% endif %}">Week</a>
+    <a href="?period=month" class="period-tab {% if period=='month' %}active{% endif %}">Month</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="card">
+    <div class="card-title">Gross Income</div>
+    <div class="card-value mono" style="color:var(--green)">GHS {{ '%.2f'|format(income) }}</div>
+    <div class="card-sub">{{ income_cnt }} service{{ 's' if income_cnt!=1 }}</div>
+  </div>
+  {% if session.role=='owner' %}
+  <div class="card">
+    <div class="card-title">Total Expenses</div>
+    <div class="card-value mono" style="color:var(--red)">GHS {{ '%.2f'|format(exp_total) }}</div>
+    <div class="card-sub">Outgoings</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Net Profit</div>
+    <div class="card-value mono" style="color:{% if net>=0 %}var(--green){% else %}var(--red){% endif %}">
+      GHS {{ '%.2f'|format(net) }}
+    </div>
+    <div class="card-sub">{% if net>=0 %}▲ Profitable{% else %}▼ Loss{% endif %}</div>
+  </div>
+  {% endif %}
+  <div class="card">
+    <div class="card-title">Avg Per Cut</div>
+    <div class="card-value mono" style="color:var(--blue)">
+      GHS {{ '%.2f'|format(income/income_cnt if income_cnt else 0) }}
+    </div>
+    <div class="card-sub">Per service</div>
+  </div>
+</div>
+
+{% if session.role=='owner' and top_barbers %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">Top Barbers — Income</div>
+    {% set max_b = top_barbers[0].total if top_barbers else 1 %}
+    {% for b in top_barbers %}
+    {% set pct = [8, ((b.total/max_b)*100)|int]|max %}
+    <div class="chart-bar-row">
+      <div class="chart-label" title="{{ b.name }}">{{ b.name }}</div>
+      <div class="chart-track">
+        <div class="chart-fill" style="width:{{ pct }}%;background:linear-gradient(90deg,var(--gold),var(--gold2))">
+          {% if pct > 28 %}<span>GHS {{ '%.0f'|format(b.total) }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="chart-val">{% if pct <= 28 %}GHS {{ '%.0f'|format(b.total) }}{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">Service Breakdown</div>
+    {% set max_s = services[0].total if services else 1 %}
+    {% for s in services %}
+    {% set pct = [8, ((s.total/max_s)*100)|int]|max %}
+    <div class="chart-bar-row">
+      <div class="chart-label" title="{{ s.service }}">{{ s.service }}</div>
+      <div class="chart-track">
+        <div class="chart-fill" style="width:{{ pct }}%;background:linear-gradient(90deg,var(--blue),#7eb8f0)">
+          {% if pct > 28 %}<span>GHS {{ '%.0f'|format(s.total) }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="chart-val">{% if pct <= 28 %}{{ s.cnt }}x{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% elif services %}
+<div class="card" style="margin-bottom:22px">
+  <div class="card-title" style="margin-bottom:14px">Your Services This Period</div>
+  {% set max_s = services[0].total if services else 1 %}
+  {% for s in services %}
+  {% set pct = [8, ((s.total/max_s)*100)|int]|max %}
+  <div class="chart-bar-row">
+    <div class="chart-label">{{ s.service }}</div>
+    <div class="chart-track">
+      <div class="chart-fill" style="width:{{ pct }}%;background:linear-gradient(90deg,var(--gold),var(--gold2))">
+        {% if pct > 28 %}<span>GHS {{ '%.0f'|format(s.total) }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="chart-val">{{ s.cnt }}x</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="section-header" style="margin-bottom:14px">
+    <div class="card-title" style="margin:0">Recent Hair Records</div>
+    <a href="{{ url_for('records') }}" class="btn btn-outline btn-sm">View All</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Time</th><th>Barber</th><th>Service</th><th>Amount</th></tr></thead>
+      <tbody>
+        {% for r in recent %}
+        <tr>
+          <td class="mono" style="font-size:11px;color:var(--text2)">
+            {{ r.recorded_at[:16].replace('T',' ') }}
+          </td>
+          <td><span class="badge badge-blue">{{ r.barber_name }}</span></td>
+          <td>{{ r.service }}</td>
+          <td class="mono" style="color:var(--green);font-weight:600">GHS {{ '%.2f'|format(r.amount) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4"><div class="empty-state"><div class="icon">✂️</div><p>No records yet</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

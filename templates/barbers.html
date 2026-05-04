@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Barbers — BarberPro{% endblock %}
+{% block page_title %}Barbers{% endblock %}
+
+{% block content %}
+<!-- Add Barber Form -->
+<div class="card" style="margin-bottom:24px">
+  <div class="card-title" style="margin-bottom:16px">➕ Add New Barber</div>
+  <form method="POST" action="{{ url_for('add_barber') }}">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" name="name" placeholder="e.g. Kwame Mensah" required>
+      </div>
+      <div class="form-group">
+        <label>Username * <span style="color:var(--text3)">(for login)</span></label>
+        <input type="text" name="username" placeholder="e.g. kwame" required autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Password *</label>
+        <input type="password" name="password" placeholder="Min. 6 characters" required autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" name="phone" placeholder="024 000 0000">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role">
+          <option value="barber">Barber</option>
+          <option value="owner">Owner</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Commission %</label>
+        <input type="number" name="commission" placeholder="e.g. 60" min="0" max="100">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-gold">Add Barber</button>
+  </form>
+</div>
+
+<!-- Barbers Grid -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+  {% for b in barbers %}
+  {% set s = stats[b.id] %}
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);flex-shrink:0">
+        {{ b.name[0] }}
+      </div>
+      <div>
+        <div style="font-size:16px;font-weight:600">{{ b.name }}</div>
+        <div style="font-size:12px;color:var(--text2)">@{{ b.username }} · {{ b.role|capitalize }}</div>
+        {% if b.phone %}<div style="font-size:12px;color:var(--text2)">📞 {{ b.phone }}</div>{% endif %}
+        {% if b.commission %}<div style="font-size:12px;color:var(--gold)">{{ b.commission|int }}% commission</div>{% endif %}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Today</div>
+        <div class="mono" style="font-size:14px;color:var(--gold2);margin-top:2px">GHS {{ '%.2f'|format(s.today) }}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">This Week</div>
+        <div class="mono" style="font-size:14px;color:var(--gold2);margin-top:2px">GHS {{ '%.2f'|format(s.week) }}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;grid-column:1/-1">
+        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">All-Time · {{ s.cuts }} cuts</div>
+        <div class="mono" style="font-size:14px;color:var(--green);margin-top:2px">GHS {{ '%.2f'|format(s.total) }}</div>
+      </div>
+    </div>
+    <form method="POST" action="{{ url_for('delete_barber', bid=b.id) }}" onsubmit="return confirm('Remove {{ b.name }}? Their records will remain.')">
+      <button type="submit" class="btn btn-danger btn-sm" style="width:100%">Remove Barber</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="empty-state" style="grid-column:1/-1">
+    <div class="icon">👤</div>
+    <p>No barbers added yet. Add your first barber above.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

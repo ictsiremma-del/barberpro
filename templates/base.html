@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}BarberPro{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0d0d; --surface:#161616; --surface2:#1e1e1e; --surface3:#272727;
+  --gold:#c9a84c; --gold2:#e8c97a; --gold-dim:rgba(201,168,76,.12);
+  --red:#e05c5c; --green:#4caf7d; --blue:#5c9ce0;
+  --text:#f0ebe1; --text2:#a09880; --text3:#5a5040;
+  --border:rgba(201,168,76,.18); --radius:12px; --radius-lg:18px;
+  --sidebar:240px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar);min-width:var(--sidebar);
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;
+  transition:transform .25s;
+}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-text{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+.logo-text span{color:var(--gold)}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:12px 8px 6px;font-weight:600}
+.nav-link{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+  color:var(--text2);text-decoration:none;font-size:13.5px;font-weight:500;
+  margin-bottom:2px;transition:all .18s;
+}
+.nav-link:hover{background:var(--gold-dim);color:var(--text)}
+.nav-link.active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--border)}
+.nav-link .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.user-chip{display:flex;align-items:center;gap:10px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;line-height:1.2}
+.user-role{font-size:11px;color:var(--text2)}
+
+/* ── Main ── */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  height:58px;background:rgba(13,13,13,.9);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;padding:0 28px;
+}
+.topbar-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.page-content{padding:28px;max-width:1100px;width:100%}
+
+/* ── Components ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;transition:border-color .2s}
+.card-sm{padding:16px 18px}
+.card-title{font-size:10px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.card-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1.1}
+.card-sub{font-size:12px;color:var(--text2);margin-top:3px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .18s;text-decoration:none;letter-spacing:.2px;white-space:nowrap}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0d0d}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,168,76,.3)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{background:rgba(224,92,92,.12);border:1px solid rgba(224,92,92,.25);color:var(--red)}
+.btn-danger:hover{background:rgba(224,92,92,.2)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-green{background:rgba(76,175,125,.12);border:1px solid rgba(76,175,125,.25);color:var(--green)}
+
+label{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:5px}
+input,select,textarea{background:var(--surface2);border:1px solid var(--surface3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 13px;border-radius:8px;outline:none;transition:border-color .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+select option{background:var(--surface2)}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.form-row{display:flex;gap:12px;flex-wrap:wrap}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--surface2)}
+th{text-align:left;padding:11px 15px;font-size:10px;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase;font-weight:600;white-space:nowrap}
+td{padding:11px 15px;font-size:13px;border-top:1px solid rgba(255,255,255,.035);vertical-align:middle}
+tr:hover td{background:rgba(201,168,76,.025)}
+.mono{font-family:'DM Mono',monospace}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(76,175,125,.15);color:var(--green)}
+.badge-red{background:rgba(224,92,92,.15);color:var(--red)}
+.badge-blue{background:rgba(92,156,224,.15);color:var(--blue)}
+.badge-gold{background:var(--gold-dim);color:var(--gold)}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+
+.alert{padding:11px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.alert-success{background:rgba(76,175,125,.12);border:1px solid rgba(76,175,125,.25);color:var(--green)}
+.alert-error{background:rgba(224,92,92,.12);border:1px solid rgba(224,92,92,.25);color:var(--red)}
+
+.period-tabs{display:flex;gap:3px;background:var(--surface2);border-radius:8px;padding:3px}
+.period-tab{flex:1;text-align:center;padding:6px 14px;border-radius:6px;border:none;background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-block}
+.period-tab:hover{color:var(--text)}
+.period-tab.active{background:var(--gold);color:#0d0d0d}
+
+.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.chart-label{width:100px;font-size:12px;color:var(--text2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.chart-track{flex:1;height:26px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.chart-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.chart-fill span{font-size:11px;font-family:'DM Mono',monospace;color:#0d0d0d;font-weight:600;white-space:nowrap}
+.chart-val{width:80px;font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);flex-shrink:0}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-state .icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.empty-state p{font-size:13px}
+
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* Hamburger */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.hamburger span{width:22px;height:2px;background:var(--text);border-radius:2px;transition:.2s}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .overlay.show{display:block}
+  .page-content{padding:16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+@media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin:0}.page-content{padding:0}}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-wrap">
+      <div class="logo-icon">✂️</div>
+      <div class="logo-text">Barber<span>Pro</span></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="{{ url_for('records') }}" class="nav-link {% if request.endpoint=='records' %}active{% endif %}">
+      <span class="icon">✂️</span> Hair Records
+    </a>
+    {% if session.role == 'owner' %}
+    <a href="{{ url_for('expenses') }}" class="nav-link {% if request.endpoint=='expenses' %}active{% endif %}">
+      <span class="icon">💸</span> Expenses
+    </a>
+    <div class="nav-section">Management</div>
+    <a href="{{ url_for('barbers') }}" class="nav-link {% if request.endpoint=='barbers' %}active{% endif %}">
+      <span class="icon">👤</span> Barbers
+    </a>
+    <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint=='reports' %}active{% endif %}">
+      <span class="icon">📈</span> Reports
+    </a>
+    {% endif %}
+    <div class="nav-section">Account</div>
+    <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint=='profile' %}active{% endif %}">
+      <span class="icon">🔑</span> Change Password
+    </a>
+    <a href="{{ url_for('logout') }}" class="nav-link">
+      <span class="icon">🚪</span> Logout
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">{{ session.name[0] }}</div>
+      <div>
+        <div class="user-name">{{ session.name }}</div>
+        <div class="user-role">{{ session.role|capitalize }}</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text2)" id="topDate"></span>
+    </div>
+  </div>
+
+  <div class="page-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">
+          {{ '✅' if cat=='success' else '❌' }} {{ msg }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<script>
+document.getElementById('topDate').textContent = new Date().toLocaleDateString('en-GH',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show')}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

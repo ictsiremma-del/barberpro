@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Expenses — BarberPro{% endblock %}
+{% block page_title %}Expenditure{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+  <div class="card">
+    <div class="card-title">Today</div>
+    <div class="card-value mono" style="color:var(--red)">GHS {{ '%.2f'|format(today_total) }}</div>
+  </div>
+  <div class="card">
+    <div class="card-title">This Week</div>
+    <div class="card-value mono" style="color:var(--red)">GHS {{ '%.2f'|format(week_total) }}</div>
+  </div>
+  <div class="card">
+    <div class="card-title">This Month</div>
+    <div class="card-value mono" style="color:var(--red)">GHS {{ '%.2f'|format(month_total) }}</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:22px">
+  <div class="card-title" style="margin-bottom:16px">➕ Add Expense</div>
+  <form method="POST" action="{{ url_for('add_expense') }}">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Category *</label>
+        <select name="category" required>
+          <option>Supplies &amp; Equipment</option>
+          <option>Rent</option>
+          <option>Electricity / Utilities</option>
+          <option>Staff Salary</option>
+          <option>Maintenance</option>
+          <option>Marketing</option>
+          <option>Toiletries</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Amount (GHS) *</label>
+        <input type="number" name="amount" placeholder="0.00" min="0" step="0.01" required>
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" name="expense_date" id="expDate">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Description</label>
+        <input type="text" name="description" placeholder="What was this for?">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-gold">Add Expense</button>
+  </form>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Amount (GHS)</th><th class="no-print">Action</th></tr>
+    </thead>
+    <tbody>
+      {% for e in expenses %}
+      <tr>
+        <td style="color:var(--text3)">{{ loop.index }}</td>
+        <td class="mono" style="font-size:12px">{{ e.expense_date }}</td>
+        <td><span class="badge badge-gold">{{ e.category }}</span></td>
+        <td style="font-size:13px">{{ e.description or '—' }}</td>
+        <td class="mono" style="color:var(--red);font-weight:600">GHS {{ '%.2f'|format(e.amount) }}</td>
+        <td class="no-print">
+          <form method="POST" action="{{ url_for('delete_expense', eid=e.id) }}" onsubmit="return confirm('Delete this expense?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6"><div class="empty-state"><div class="icon">💸</div><p>No expenses recorded yet</p></div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const ed = document.getElementById('expDate');
+if(ed) ed.value = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

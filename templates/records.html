@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Hair Records — BarberPro{% endblock %}
+{% block page_title %}Hair Records{% endblock %}
+
+{% block content %}
+<!-- Add Record Form -->
+<div class="card" style="margin-bottom:22px">
+  <div class="card-title" style="margin-bottom:16px">➕ New Hair Record</div>
+  <form method="POST" action="{{ url_for('add_record') }}">
+    <div class="form-grid">
+      {% if session.role == 'owner' %}
+      <div class="form-group">
+        <label>Barber</label>
+        <select name="barber_id" required>
+          {% for b in barbers %}
+          <option value="{{ b.id }}">{{ b.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="form-group">
+        <label>Service *</label>
+        <select name="service" id="serviceSelect" onchange="toggleCustom()">
+          <option>Haircut</option>
+          <option>Shave</option>
+          <option>Haircut &amp; Shave</option>
+          <option>Hair Wash</option>
+          <option>Lineup</option>
+          <option>Kids Haircut</option>
+          <option>Beard Trim</option>
+          <option>Fade</option>
+          <option>Dreadlocks</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      <div class="form-group" id="customGroup" style="display:none">
+        <label>Custom Service Name</label>
+        <input type="text" name="custom_service" placeholder="e.g. Hair Colouring">
+      </div>
+      <div class="form-group">
+        <label>Amount (GHS) *</label>
+        <input type="number" name="amount" placeholder="0.00" min="0" step="0.5" required>
+      </div>
+      <div class="form-group">
+        <label>Date &amp; Time</label>
+        <input type="datetime-local" name="recorded_at" id="recDT">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Note (optional)</label>
+        <input type="text" name="note" placeholder="Any extra info...">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-gold">Save Record</button>
+  </form>
+</div>
+
+<!-- Filter -->
+<div class="card card-sm" style="margin-bottom:18px">
+  <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+    {% if session.role=='owner' %}
+    <div class="form-group" style="margin:0;min-width:160px">
+      <label>Barber</label>
+      <select name="barber_id">
+        <option value="">All Barbers</option>
+        {% for b in barbers %}
+        <option value="{{ b.id }}" {% if request.args.get('barber_id')==b.id|string %}selected{% endif %}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <div class="form-group" style="margin:0">
+      <label>From</label>
+      <input type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>To</label>
+      <input type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <button type="submit" class="btn btn-outline">Filter</button>
+    <a href="{{ url_for('records') }}" class="btn btn-outline">Reset</a>
+  </form>
+</div>
+
+{% if records %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+  <span style="font-size:13px;color:var(--text2)">{{ records|length }} record{{ 's' if records|length!=1 }} found</span>
+  <span class="mono" style="color:var(--green);font-weight:600">Total: GHS {{ '%.2f'|format(total) }}</span>
+</div>
+{% endif %}
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Date &amp; Time</th>
+        {% if session.role=='owner' %}<th>Barber</th>{% endif %}
+        <th>Service</th><th>Amount (GHS)</th><th>Note</th><th class="no-print">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td style="color:var(--text3)">{{ loop.index }}</td>
+        <td class="mono" style="font-size:12px">{{ r.recorded_at[:16].replace('T',' ') }}</td>
+        {% if session.role=='owner' %}
+        <td><span class="badge badge-blue">{{ r.barber_name }}</span></td>
+        {% endif %}
+        <td>{{ r.service }}</td>
+        <td class="mono" style="color:var(--green);font-weight:600">GHS {{ '%.2f'|format(r.amount) }}</td>
+        <td style="color:var(--text2);font-size:12px">{{ r.note or '—' }}</td>
+        <td class="no-print">
+          <form method="POST" action="{{ url_for('delete_record', rid=r.id) }}" onsubmit="return confirm('Delete this record?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7">
+          <div class="empty-state"><div class="icon">✂️</div><p>No records for this period</p></div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dt = document.getElementById('recDT');
+if (dt) { const n = new Date(); dt.value = new Date(n - n.getTimezoneOffset()*60000).toISOString().slice(0,16); }
+function toggleCustom() {
+  document.getElementById('customGroup').style.display =
+    document.getElementById('serviceSelect').value === 'Custom' ? 'flex' : 'none';
+}
+</script>
+{% endblock %}

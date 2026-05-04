@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BarberPro — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--surface:#161616;--gold:#c9a84c;--gold2:#e8c97a;--text:#f0ebe1;--text2:#a09880;--border:rgba(201,168,76,.18);--red:#e05c5c;--green:#4caf7d}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,.06),transparent);pointer-events:none}
+.login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px}
+.logo{text-align:center;margin-bottom:32px}
+.logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px}
+.logo-text{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--text)}
+.logo-text span{color:var(--gold)}
+.logo-sub{font-size:13px;color:var(--text2);margin-top:4px}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+input{width:100%;background:#1e1e1e;border:1px solid #272727;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 14px;border-radius:9px;outline:none;transition:border-color .2s}
+input:focus{border-color:var(--gold)}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0d0d;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:9px;cursor:pointer;transition:all .18s;margin-top:8px;letter-spacing:.3px}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,168,76,.3)}
+.alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.alert-error{background:rgba(224,92,92,.12);border:1px solid rgba(224,92,92,.25);color:var(--red)}
+.hint{margin-top:24px;padding:14px;background:#1a1a1a;border-radius:10px;font-size:12px;color:var(--text2);line-height:1.6}
+.hint strong{color:var(--gold);font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+<div class="login-box">
+  <div class="logo">
+    <div class="logo-icon">✂️</div>
+    <div class="logo-text">Barber<span>Pro</span></div>
+    <div class="logo-sub">Salon Management System</div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }}">❌ {{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter your username" autocomplete="username" required autofocus>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-login">Sign In →</button>
+  </form>
+
+  <div class="hint">
+    <strong>Default Owner Login</strong><br>
+    Username: <strong>owner</strong> &nbsp;·&nbsp; Password: <strong>owner1234</strong><br>
+    <span style="color:#5a5040;font-size:11px">Change your password after first login.</span>
+  </div>
+</div>
+</body>
+</html>
