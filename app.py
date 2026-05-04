@@ -12,7 +12,7 @@ if DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
 def get_db():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL, sslmode="require")
 
 def get_cursor(conn):
     return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -361,3 +361,7 @@ def profile():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.errorhandler(500)
+def internal_error(e):
+    return f"<h2>Server Error</h2><pre>{e}</pre><p>Check Render logs for details.</p>", 500
