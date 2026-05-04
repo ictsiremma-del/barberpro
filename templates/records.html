@@ -101,7 +101,7 @@
       {% for r in records %}
       <tr>
         <td style="color:var(--text3)">{{ loop.index }}</td>
-        <td class="mono" style="font-size:12px">{{ r.recorded_at[:16].replace('T',' ') }}</td>
+        <td class="mono" style="font-size:12px">{{ r.recorded_at.strftime('%Y-%m-%d %H:%M') if r.recorded_at else '' }}</td>
         {% if session.role=='owner' %}
         <td><span class="badge badge-blue">{{ r.barber_name }}</span></td>
         {% endif %}

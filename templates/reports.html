@@ -97,7 +97,7 @@
       <tbody>
         {% for r in all_records %}
         <tr>
-          <td class="mono" style="font-size:12px">{{ r.recorded_at[:16].replace('T',' ') }}</td>
+          <td class="mono" style="font-size:12px">{{ r.recorded_at.strftime('%Y-%m-%d %H:%M') if r.recorded_at else '' }}</td>
           <td>{{ r.barber_name }}</td>
           <td>{{ r.service }}</td>
           <td class="mono" style="color:var(--green);font-weight:600">GHS {{ '%.2f'|format(r.amount) }}</td>
